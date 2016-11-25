@@ -2,8 +2,16 @@ body {
 	background-color: #DDD;
 }
 
+.module {
+	background: white;
+	margin: 10px 0px;
+	padding: 10px;
+	border-radius: 10px;
+}
+
 .page-header {
 	border-bottom: 1px solid #666;
+	margin: 0px;
 	//font-size: 24px;
 }
 
@@ -27,4 +35,10 @@ ul li {
 .already-visible {
   transform: translateY(0);
   animation: none;
+}
+
+body {
+  background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/3/blurry-blue.jpg);
+  background-size: cover;
+  padding: 30px;
 }
