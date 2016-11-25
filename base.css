@@ -4,8 +4,13 @@ body {
 
 .page-header {
 	border-bottom: 1px solid #666;
+	font-size: 24px;
 }
 
 ul li {
 	list-style-type: none;
+}
+
+.lead {
+	font-size: 16px;
 }
