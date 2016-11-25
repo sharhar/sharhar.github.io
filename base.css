@@ -4,7 +4,7 @@ body {
 
 .page-header {
 	border-bottom: 1px solid #666;
-	font-size: 24px;
+	//font-size: 24px;
 }
 
 ul li {
@@ -12,5 +12,19 @@ ul li {
 }
 
 .lead {
-	font-size: 16px;
+	//font-size: 16px;
+}
+
+.come-in {
+	transform: translateY(150px);
+  	animation: come-in 0.8s ease forwards;
+}
+
+@keyframes come-in {
+  to { transform: translateY(0); }
+}
+
+.already-visible {
+  transform: translateY(0);
+  animation: none;
 }
