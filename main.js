@@ -30,8 +30,10 @@
 
 $(".module").each(function() {
   var ele = $(this);
+  ele.addClass("invisible");
   if (ele.visible(true)) {
      ele.addClass("already-visible"); 
+     ele.addClass("visible");
   } 
 });
 
@@ -40,6 +42,7 @@ $(window).scroll(function(event) {
     var ele = $(this);
     if (ele.visible(true)) {
       ele.addClass("come-in"); 
+      ele.addClass("visible");
     } 
   });
   

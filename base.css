@@ -19,13 +19,13 @@ ul li {
 	list-style-type: none;
 }
 
-.lead {
-	//font-size: 16px;
+.stuff {
+	font-size: 16px;
 }
 
 .come-in {
 	transform: translateY(150px);
-  	animation: come-in 0.8s ease forwards;
+  	animation: come-in 1.2s ease forwards;
 }
 
 @keyframes come-in {
@@ -37,8 +37,23 @@ ul li {
   animation: none;
 }
 
+.invisible {
+	visibility: hidden;
+}
+
+.visible {
+	visibility: visible;
+}
+
 body {
   background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/3/blurry-blue.jpg);
   background-size: cover;
   padding: 30px;
+}
+
+img {
+	width: auto;
+	height: auto;
+
+	width: 100%;
 }
