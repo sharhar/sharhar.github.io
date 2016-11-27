@@ -28,6 +28,10 @@
     
 })(jQuery);
 
+function hasClass(element, cls) {
+    return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
+}
+
 $(".module").each(function() {
   var ele = $(this);
   ele.addClass("invisible");
@@ -37,12 +41,15 @@ $(".module").each(function() {
   } 
 });
 
+alt = true
+
 $(window).scroll(function(event) {
   $(".module").each(function() {
     var ele = $(this);
-    if (ele.visible(true)) {
-      ele.addClass("come-in"); 
+    if (ele.visible(true) && !ele.hasClass("visible")) {
+      ele.addClass("come-in-"+alt); 
       ele.addClass("visible");
+      alt = !alt
     } 
   });
   
