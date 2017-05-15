@@ -1,8 +1,11 @@
 var canvas;
 var gl;
+var time;
+var startTime;
+var deltaTime;
 
-function createContext(canvasId) {
-    canvas = document.getElementById(canvasId);
+function init(drawFunc) {
+    canvas = document.getElementById("game-canvas");
     gl = WebGLUtils.setupWebGL(canvas);
 
     if(!gl) {
@@ -10,12 +13,27 @@ function createContext(canvasId) {
         return;
     }
 
-    var time = 0;
+    time = 0;
+
+    document.getElementById("info").innerHTML =
+        "WebGL Info:<br><br>" + 
+        "Version: " + 
+        gl.getParameter(gl.VERSION) + "<br>" + 
+        "Renderer: " + 
+        gl.getParameter(gl.RENDERER) + "<br>" + 
+        "Vendor: " + 
+         gl.getParameter(gl.VENDOR);
+
+    startTime = new Date().getTime();
 
     setInterval(function() {
-        gl.clearColor((Math.cos(time) + 1)/2.0, (Math.sin(time) + 1)/2.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        time += 0.01;
-    }, 10);
+        deltaTime = new Date().getTime() / 1000.0 - startTime;
+        startTime = new Date().getTime() / 1000.0;
+
+        drawFunc();
+
+        time += deltaTime;
+    }, 50.0/6.0);
 }
