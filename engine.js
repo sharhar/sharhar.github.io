@@ -1,3 +1,5 @@
+//Tutorial link: http://learningwebgl.com/blog/?page_id=1217
+
 var canvas;
 var gl;
 var time;
