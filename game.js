@@ -1,7 +1,19 @@
+
+var model;
+
+function init() {
+	var verts = [
+		-0.5, -0.5,
+		 0.0, 0.5,
+		 0.5, -0.5
+	];
+
+    model = createModel(verts);
+}
+
 function draw() {
-    gl.clearColor(
-        (Math.cos(time) + 1)/2.0, 
-        (Math.sin(time) + 1)/2.0, 
-        1.0, 1.0);
+	prepareShader(shaderProgram);
+	prepareModel(model);
+	drawModel(model);
 }
 

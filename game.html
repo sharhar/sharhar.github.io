@@ -1,23 +1,39 @@
 <html>
-    <head>
-        <title>
-            LD 41
-        </title>
+	<head>
+		<title>
+			LD 41
+		</title>
 
-        <script src="jquery-3.1.0.min.js" type="text/javascript"></script>
-        <script src="webgl-utils.js" type="text/javascript"></script>
-        <script src="engine.js" type="text/javascript"></script>
-    </head>
+		<script id="shader-fs" type="x-shader/x-fragment">
+		precision mediump float;
 
-    <body onload="init(draw)">
+		void main(void) {
+			gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+		}
+		</script>
 
-        <canvas id="game-canvas" width="600" height="600">
-            Please use a browser that supports Canvas!
-        </canvas>
+		<script id="shader-vs" type="x-shader/x-vertex">
+		attribute vec3 pos;
 
-        <p id="info"></p>
+		void main(void) {
+			gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
+		}
+		</script>
 
-        <script src="game.js" type="text/javascript"></script>
+		<script src="jquery-3.1.0.min.js" type="text/javascript"></script>
+		<script src="webgl-utils.js" type="text/javascript"></script>
+		<script src="engine.js" type="text/javascript"></script>
+	</head>
 
-    </body>
+	<body onload="initGame(init, draw)">
+
+		<canvas id="game-canvas" width="600" height="600">
+			Please use a browser that supports Canvas!
+		</canvas>
+
+		<p id="info"></p>
+
+		<script src="game.js" type="text/javascript"></script>
+
+	</body>
 </html>
