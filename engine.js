@@ -1,25 +1,23 @@
 //Tutorial link: http://learningwebgl.com/blog/?page_id=1217
 
+
 var canvas;
 var gl;
 var time;
 var startTime;
 var deltaTime;
-var vertexShader;
-var fragmentShader;
-var shaderProgram;
 
 function initGame(initFunc, drawFunc) {
 	canvas = document.getElementById("game-canvas");
 	gl = WebGLUtils.setupWebGL(canvas);
 
-	gl.viewportWidth = canvas.width;
-	gl.viewportHeight = canvas.height;
-
 	if(!gl) {
 		console.log("Failed ot get the rendering context for WebGL!");
 		return;
 	}
+
+	gl.viewportWidth = canvas.width;
+	gl.viewportHeight = canvas.height;
 
 	time = 0;
 
@@ -35,8 +33,6 @@ function initGame(initFunc, drawFunc) {
 	startTime = new Date().getTime();
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
-	initShaders();
 
 	initFunc();
 
@@ -87,14 +83,14 @@ function getShader(id) {
 	return shader;
 }
 
-function initShaders() {
-	vertexShader = getShader("shader-vs");
-	fragmentShader = getShader("shader-fs");
+function createShader(vertID, fragID, attribs) {
+	var shaderProgram = gl.createProgram();
+	
+	shaderProgram.vertexShader = getShader(vertID);
+	shaderProgram.fragmentShader = getShader(fragID);
 
-	shaderProgram = gl.createProgram();
-
-	gl.attachShader(shaderProgram, vertexShader);
-	gl.attachShader(shaderProgram, fragmentShader);
+	gl.attachShader(shaderProgram, shaderProgram.vertexShader);
+	gl.attachShader(shaderProgram, shaderProgram.fragmentShader);
 	gl.linkProgram(shaderProgram);
 
 	if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
@@ -103,33 +99,54 @@ function initShaders() {
 
 	gl.useProgram(shaderProgram);
 
-	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "pos");
-	gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+	shaderProgram.attribs = [];
+
+	for(var i = 0; i < attribs.length;i++) {
+		shaderProgram.attribs.push(gl.getAttribLocation(shaderProgram, attribs[i]));
+	}
+
+	return shaderProgram;
 }
 
 function prepareShader(shader) {
 	gl.useProgram(shaderProgram);
-	gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+	for(var i = 0; i < shaderProgram.attribs.length;i++) {
+		gl.enableVertexAttribArray(shaderProgram.attribs[i]);
+	}
 }
 
 function prepareModel(model) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, model);
-	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, model.itemSize, gl.FLOAT, false, 0, 0);
+
+	for(var i = 0; i < model.itemSizes.length;i++) {
+		gl.vertexAttribPointer(shaderProgram.attribs[i], model.itemSizes[i], 
+				gl.FLOAT, false, model.vertexSize * 4, model.offsets[i] * 4);
+	}
 }
 
 function drawModel(model) {
 	gl.drawArrays(gl.TRIANGLES, 0, model.numItems);
 }
 
-function createModel(verts) {
+function createModel(verts, sizes) {
 	var model = gl.createBuffer();
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, model);
 
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
 
-	model.itemSize = 2;
-	model.numItems = verts.length / 2;
+	model.itemSizes = sizes;
+
+	model.vertexSize = 0;
+	model.offsets = [];
+
+	for(var i = 0; i < sizes.length;i++) {
+		model.offsets.push(model.vertexSize);
+		model.vertexSize += sizes[i];
+	}
+
+	model.numItems = verts.length / model.vertexSize;
 
 	return model;
 }
