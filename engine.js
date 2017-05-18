@@ -7,6 +7,12 @@ var time;
 var startTime;
 var deltaTime;
 
+var _____imagesToLoad;
+var _____currentImageLoad;
+var _____drawFn;
+var _____totalImageLoad;
+var _____totalImagesLoaded;
+
 function initGame(initFunc, drawFunc) {
 	canvas = document.getElementById("game-canvas");
 	gl = WebGLUtils.setupWebGL(canvas);
@@ -32,10 +38,77 @@ function initGame(initFunc, drawFunc) {
 
 	startTime = new Date().getTime();
 
+	gl.enable(gl.BLEND);
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+	_____imagesToLoad = [];
+	_____currentImageLoad = 0;
+	_____totalImageLoad = 0.0;
+	_____totalImagesLoaded = 0.0;
 
 	initFunc();
 
+	_____drawFn = drawFunc;
+
+	if(_____imagesToLoad.length > 0) {
+		console.log("Starting to download " + (Math.round(10*_____totalImageLoad/1024.0)/10.0) + "KB of image data");
+
+		var loadedImage = new Image();
+		loadedImage.onload = function() { loadNextImage(loadedImage); }
+		loadedImage.src = _____imagesToLoad[_____currentImageLoad][0];
+		return;
+	}
+
+	startGameLoop();
+}
+
+function loadNextImage(image) {
+	_____totalImagesLoaded += parseFloat(_____imagesToLoad[_____currentImageLoad][2]);
+	console.log("Downloaded " + (Math.round(10*_____totalImagesLoaded/1024.0)/10.0) + "KB of image data (" 
+							+ (Math.round(100*_____totalImagesLoaded/_____totalImageLoad)) + "%)");
+
+	eval(_____imagesToLoad[_____currentImageLoad][1] + " = gl.createTexture();");
+
+	eval("gl.bindTexture(gl.TEXTURE_2D, " + _____imagesToLoad[_____currentImageLoad][1] +  ");");
+	
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+	_____currentImageLoad++;
+
+	if(_____currentImageLoad >= _____imagesToLoad.length) {
+		startGameLoop();
+		return;
+	}
+	
+	var loadedImage = new Image();
+	loadedImage.onload = function() { loadNextImage(loadedImage); }
+	loadedImage.src = _____imagesToLoad[_____currentImageLoad][0];
+}
+
+function bindTexture(texture) {
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+}
+
+function loadImage(url, varname) {
+ 	var xhr = new XMLHttpRequest();
+    xhr.open("HEAD", url, false);
+    xhr.send();
+
+	var imageSize = xhr.getResponseHeader("Content-Length");
+
+	_____totalImageLoad += parseFloat(imageSize);
+
+	_____imagesToLoad.push([url, varname, imageSize]);
+}
+
+function startGameLoop() {
 	setInterval(function() {
 		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 		gl.clear(gl.COLOR_BUFFER_BIT);
@@ -43,7 +116,7 @@ function initGame(initFunc, drawFunc) {
 		deltaTime = new Date().getTime() / 1000.0 - startTime;
 		startTime = new Date().getTime() / 1000.0;
 
-		drawFunc();
+		_____drawFn();
 
 		time += deltaTime;
 	}, 50.0/6.0);

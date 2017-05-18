@@ -6,23 +6,27 @@
 
 		<script id="shader-vs" type="x-shader/x-vertex">
 		attribute vec2 pos;
-		attribute vec3 color;
+		attribute vec2 coord;
 
-		varying vec3 fcol;
+		varying vec2 tcoord;
 
 		void main(void) {
 			gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
-			fcol = color;
+			tcoord = coord;
 		}
 		</script>
 
 		<script id="shader-fs" type="x-shader/x-fragment">
 		precision mediump float;
 
-		varying vec3 fcol;
+		uniform sampler2D tex;
+
+		varying vec2 tcoord;
 
 		void main(void) {
-			gl_FragColor = vec4(fcol.xyz, 1.0);
+			vec4 tcol = texture2D(tex, tcoord);
+
+			gl_FragColor = mix(vec4(tcol.rgb, 1.0), vec4(1.0), 1.0-tcol.a);
 		}
 		</script>
 
