@@ -1,44 +1,34 @@
 
 var model;
-var model2;
 var shaderProgram;
 var openglTex;
 var faceTex;
+var projection;
+var modelview;
 
 function init() {
-	var xoff = -0.4;
-	var yoff = -0.4;
-	var scale = 0.6;
 
 	var verts = [
-		-0.5*scale + xoff, -0.5*scale + yoff, 0.0, 1.0,
-		-0.5*scale + xoff,  0.5*scale + yoff, 0.0, 0.0,
-		 0.5*scale + xoff, -0.5*scale + yoff, 1.0, 1.0,
+		-0.5, -0.5, 0.0, 1.0,
+		-0.5,  0.5, 0.0, 0.0,
+		 0.5, -0.5, 1.0, 1.0,
 
-		 0.5*scale + xoff,  0.5*scale + yoff, 1.0, 0.0,
-		-0.5*scale + xoff,  0.5*scale + yoff, 0.0, 0.0,
-		 0.5*scale + xoff, -0.5*scale + yoff, 1.0, 1.0
+		 0.5,  0.5, 1.0, 0.0,
+		-0.5,  0.5, 0.0, 0.0,
+		 0.5, -0.5, 1.0, 1.0
 	];
 
-	xoff = 0.4;
-	yoff = 0.4;
+	shaderProgram = createShader("shader-vs", "shader-fs", ["pos", "coord"], ["proj", "modelview", "tex"]);
+	setUniform1i(shaderProgram, 2, 0);
 
-	var verts2 = [
-		-0.5*scale + xoff, -0.5*scale + yoff, 0.0, 1.0,
-		-0.5*scale + xoff,  0.5*scale + yoff, 0.0, 0.0,
-		 0.5*scale + xoff, -0.5*scale + yoff, 1.0, 1.0,
+	projection = mat4.create();
+	modelview = mat4.create();
 
-		 0.5*scale + xoff,  0.5*scale + yoff, 1.0, 0.0,
-		-0.5*scale + xoff,  0.5*scale + yoff, 0.0, 0.0,
-		 0.5*scale + xoff, -0.5*scale + yoff, 1.0, 1.0
-	];
+	mat4.identity(projection);
 
-	shaderProgram = createShader("shader-vs", "shader-fs", ["pos", "coord"]);
-	shaderProgram.texLoc = gl.getUniformLocation(shaderProgram, "tex");
-	gl.uniform1i(shaderProgram.texLoc, 0);
+	setUniformMat4(shaderProgram, 0, projection);
 
 	model = createModel(verts, [2, 2]);
-	model2 = createModel(verts2, [2, 2]);
 
 	loadImage("opengl_logo.png", "openglTex");
 	loadImage("face.jpg", "faceTex");
@@ -46,13 +36,28 @@ function init() {
 
 function draw() {
 	prepareShader(shaderProgram);
-	
-	bindTexture(openglTex);
 	prepareModel(model);
+
+	bindTexture(openglTex);
+
+	mat4.identity(modelview);
+	mat4.translate(modelview, [-0.4, -0.4, 0.0]);
+	mat4.rotate(modelview, time, [0, 0, 1]);
+	mat4.scale(modelview, [0.6, 0.6, 0.6]);
+
+	setUniformMat4(shaderProgram, 1, modelview);
+
 	drawModel(model);
 
 	bindTexture(faceTex);
-	prepareModel(model2);
-	drawModel(model2);
+
+	mat4.identity(modelview);
+	mat4.translate(modelview, [0.4, 0.4, 0.0]);
+	mat4.rotate(modelview, -time, [0, 0, 1]);
+	mat4.scale(modelview, [0.6, 0.6, 0.6]);
+
+	setUniformMat4(shaderProgram, 1, modelview);
+
+	drawModel(model);
 }
 

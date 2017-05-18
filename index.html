@@ -8,10 +8,13 @@
 		attribute vec2 pos;
 		attribute vec2 coord;
 
+		uniform mat4 proj;
+		uniform mat4 modelview;
+
 		varying vec2 tcoord;
 
 		void main(void) {
-			gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
+			gl_Position = proj * modelview * vec4(pos.x, pos.y, 0.0, 1.0);
 			tcoord = coord;
 		}
 		</script>
@@ -31,6 +34,7 @@
 		</script>
 		
 		<script src="webgl-utils.js" type="text/javascript"></script>
+		<script src="glMatrix-0.9.5.min.js" type="text/javascript"></script>
 		<script src="engine.js" type="text/javascript"></script>
 	</head>
 

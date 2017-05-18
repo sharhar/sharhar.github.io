@@ -1,6 +1,5 @@
 //Tutorial link: http://learningwebgl.com/blog/?page_id=1217
 
-
 var canvas;
 var gl;
 var time;
@@ -109,7 +108,9 @@ function loadImage(url, varname) {
 }
 
 function startGameLoop() {
-	setInterval(function() {
+	function render_rec() {
+		window.requestAnimFrame(render_rec, canvas);
+
 		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -119,7 +120,9 @@ function startGameLoop() {
 		_____drawFn();
 
 		time += deltaTime;
-	}, 50.0/6.0);
+	}
+	
+	render_rec();
 }
 
 function getShader(id) {
@@ -156,7 +159,7 @@ function getShader(id) {
 	return shader;
 }
 
-function createShader(vertID, fragID, attribs) {
+function createShader(vertID, fragID, attribs, uniforms) {
 	var shaderProgram = gl.createProgram();
 	
 	shaderProgram.vertexShader = getShader(vertID);
@@ -173,12 +176,25 @@ function createShader(vertID, fragID, attribs) {
 	gl.useProgram(shaderProgram);
 
 	shaderProgram.attribs = [];
+	shaderProgram.uniforms = [];
 
 	for(var i = 0; i < attribs.length;i++) {
 		shaderProgram.attribs.push(gl.getAttribLocation(shaderProgram, attribs[i]));
 	}
 
+	for(var i = 0; i < uniforms.length;i++) {
+		shaderProgram.uniforms.push(gl.getUniformLocation(shaderProgram, uniforms[i]));
+	}
+
 	return shaderProgram;
+}
+
+function setUniform1i(shaderProgram, location, value) {
+	gl.uniform1i(shaderProgram.uniforms[location], value);
+}
+
+function setUniformMat4(shaderProgram, location, value) {
+	gl.uniformMatrix4fv(shaderProgram.uniforms[location], false, value);
 }
 
 function prepareShader(shader) {
