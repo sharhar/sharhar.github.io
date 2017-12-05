@@ -10,26 +10,18 @@ function gpInitCanvas(canvas) {
 	gl.viewportHeight = canvas.height;
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-	gl.test_a = 0;
 	gl.has_data = false;
 
 	var vs_src = `attribute vec2 pos;
-		//attribute vec2 coord;
-
-		//uniform mat4 proj;
-		//uniform mat4 modelview;
-		//varying vec2 tcoord;
+		
 		void main(void) {
-			gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);//proj * modelview * vec4(pos.x, pos.y, 0.0, 1.0);
-			//tcoord = coord;
+			gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
 		}`;
 
 	var fs_src = `precision mediump float;
-		//uniform sampler2D tex;
-		//varying vec2 tcoord;
+
 		void main(void) {
-			//vec4 tcol = texture2D(tex, tcoord);
-			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);//mix(vec4(tcol.rgb, 1.0), vec4(1.0), 1.0-tcol.a);
+			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
 		}`;
 
 	var vs = getShader(gl, vs_src, gl.VERTEX_SHADER);
@@ -62,14 +54,14 @@ function startGameLoop(gl) {
 		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.clearColor(gl.test_a, 0.0, 0.0, 1.0);
+		gl.clearColor(1.0, 1.0, 1.0, 1.0);
 
 		if(gl.has_data) {
-			gl.bindBuffer(gl.ARRAY_BUFFER, gl.vbo);
-    		gl.vertexAttribPointer(gl.shader.vpa, gl.vbo.itemSize, gl.FLOAT, false, 0, 0);
+			gl.bindBuffer(gl.ARRAY_BUFFER, gl.vbos[gl.rvbo]);
+    		gl.vertexAttribPointer(gl.shader.vpa, gl.vbos[gl.rvbo].itemSize, gl.FLOAT, false, 0, 0);
 			gl.useProgram(gl.shader);
 
-    		gl.drawArrays(gl.LINE_STRIP, 0, gl.vbo.numItems);
+    		gl.drawArrays(gl.LINE_STRIP, 0, gl.vbos[gl.rvbo].numItems);
 		}
 	}
 	
@@ -92,14 +84,38 @@ function getShader(gl, str, type) {
 
 
 function initData(gl, data, bounds) {
-	gl.vbo = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, gl.vbo);
+	gl.cvbo = 0;
+	gl.rvbo = 0;
+	gl.svbo = false;
+	gl.vbos = new Array(2);
+
+	gl.vbos[gl.cvbo] = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, gl.vbos[gl.cvbo]);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
 
-	gl.vbo.itemSize = 2;
-	gl.vbo.numItems = data.length/2;
-
-
+	gl.vbos[gl.cvbo].itemSize = 2;
+	gl.vbos[gl.cvbo].numItems = data.length/2;
 
 	gl.has_data = true;
+}
+
+function updateData(gl, data, bounds) {
+	gl.cvbo = (gl.cvbo + 1)%2;
+
+	if(gl.cvbo == 0 || gl.svbo) {
+		gl.deleteBuffer(gl.vbos[gl.cvbo])
+	}
+
+	gl.vbos[gl.cvbo] = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, gl.vbos[gl.cvbo]);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+
+	gl.vbos[gl.cvbo].itemSize = 2;
+	gl.vbos[gl.cvbo].numItems = data.length/2;
+
+	if(gl.cvbo == 1) {
+		gl.svbo = true;
+	}
+
+	gl.rvbo = (gl.rvbo + 1)%2;
 }

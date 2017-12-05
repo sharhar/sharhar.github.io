@@ -9,16 +9,42 @@
 	</head>
 
 	<body>
-		<canvas id="test-canvas" width="600" height="600">
+		<canvas id="test-canvas" width="600" height="600" style="border-color: #000000; border-style: solid">
 			Please use a browser that supports Canvas!
 		</canvas>
 
 		<script>
 			var canvas = document.getElementById("test-canvas");
 			var gp = gpInitCanvas(canvas);
-			var data = [-0.5, -0.5, 0.1, 0.4, 0.8, 0.8];
+			var size = 100000;
+			var data = new Array(size*4);
+			var x = 0;
+			var xoff = 0;
+			for(var i = 0; i < size*2;i++) {
+				x = (i-size)/size;
+				data[i*2 + 0] = x;
+				data[i*2 + 1] = Math.cos(x*10.0)/10.0;
+			}
 			var bounds = [-1, -1, 1, 1];
 			initData(gp, data, bounds);
+
+			setInterval(update, 16);
+
+			function update() {
+				var stime = new Date().getTime();
+				xoff += 0.05;
+				for(var i = 0; i < size*2;i++) {
+					x = (i-size)/size;
+					data[i*2 + 0] = x;
+					data[i*2 + 1] = Math.cos(x*10.0 + xoff)/10.0;
+				}
+
+				updateData(gp, data, bounds);
+
+				var etime = new Date().getTime();
+				//console.log(etime - stime);
+			}
+
 		</script>
 	</body>
 </html>
