@@ -13,15 +13,18 @@ function gpInitCanvas(canvas) {
 	gl.has_data = false;
 
 	var vs_src = `attribute vec2 pos;
+
+		uniform mat4 model;
+  		uniform mat4 proj;
 		
 		void main(void) {
-			gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
+			gl_Position = proj * model * vec4(pos.x, pos.y, 0.0, 1.0);
 		}`;
 
 	var fs_src = `precision mediump float;
 
 		void main(void) {
-			gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+			gl_FragColor = vec4(0.7, 0.2, 0.1, 1.0);
 		}`;
 
 	var vs = getShader(gl, vs_src, gl.VERTEX_SHADER);
@@ -39,6 +42,15 @@ function gpInitCanvas(canvas) {
 
     gl.useProgram(gl.shader);
 
+    gl.shader.modelLoc = gl.getUniformLocation(gl.shader, "model");
+    gl.shader.projLoc = gl.getUniformLocation(gl.shader, "proj");
+
+    gl.model = mat4.create();
+    gl.proj = mat4.create();
+
+    mat4.identity(gl.model);
+    mat4.identity(gl.proj);
+
     gl.shader.vpa = gl.getAttribLocation(gl.shader, "pos");
     gl.enableVertexAttribArray(gl.shader.vpa);
 
@@ -51,6 +63,7 @@ function startGameLoop(gl) {
 	function render_rec() {
 		window.requestAnimFrame(render_rec, canvas);
 
+		//var stime = new Date().getTime();
 		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -61,8 +74,14 @@ function startGameLoop(gl) {
     		gl.vertexAttribPointer(gl.shader.vpa, gl.vbos[gl.rvbo].itemSize, gl.FLOAT, false, 0, 0);
 			gl.useProgram(gl.shader);
 
+			gl.uniformMatrix4fv(gl.shader.projLoc, false, gl.proj);
+    		gl.uniformMatrix4fv(gl.shader.modelLoc, false, gl.model);
+
     		gl.drawArrays(gl.LINE_STRIP, 0, gl.vbos[gl.rvbo].numItems);
 		}
+
+		//var etime = new Date().getTime();
+		//console.log(etime - stime);
 	}
 	
 	render_rec();
