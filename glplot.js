@@ -60,7 +60,6 @@ function gpInitCanvas(canvas, bounds) {
     mat4.identity(gl.model);
     mat4.identity(gl.proj);
 
-    gpInternal_getOrthoMatrix(gl.proj, gl.g_left, gl.g_right, gl.g_down, gl.g_up, -1, 1);
     gpInternal_getOrthoMatrix(gl.gridProj, 0, canvas.width, 0, canvas.height, -1, 1);
 
     gl.shader.vpa = gl.getAttribLocation(gl.shader, "pos");
@@ -97,7 +96,6 @@ function gpInitCanvas(canvas, bounds) {
 
 	return gl;
 }
-
 
 function initData(gl, data, bounds) {
 	gl.cvbo = 0;
@@ -162,6 +160,7 @@ function gpInternal_startGameLoop(gl) {
 			gl.bindBuffer(gl.ARRAY_BUFFER, gl.vbos[gl.rvbo]);
 			gl.vertexAttribPointer(gl.shader.vpa, gl.vbos[gl.rvbo].itemSize, gl.FLOAT, false, 0, 0);
 
+			gpInternal_getOrthoMatrix(gl.proj, gl.g_left, gl.g_right, gl.g_down, gl.g_up, -1, 1);
 			gl.uniform3f(gl.shader.colorLoc, 0.7, 0.2, 0.1);
 			gl.uniformMatrix4fv(gl.shader.projLoc, false, gl.proj);
 			gl.uniformMatrix4fv(gl.shader.modelLoc, false, gl.model);
@@ -228,11 +227,11 @@ function gpInternal_drawGrid(gl) {
 	var xfloor = Math.floor(xlog);
 	var xmag = Math.pow(10, xfloor);
 
-	if (Math.floor(xlog - 0.25) < xfloor) {
+	if (Math.floor(xlog - 0.3) < xfloor) {
 		xmag /= 2;
 	}
 
-	if (Math.floor(xlog - 0.5) < xfloor) {
+	if (Math.floor(xlog - 0.6) < xfloor) {
 		xmag /= 2;
 	}
 
@@ -259,11 +258,11 @@ function gpInternal_drawGrid(gl) {
 	var yfloor = Math.floor(ylog);
 	var ymag = Math.pow(10, yfloor);
 
-	if (Math.floor(ylog - 0.25) < yfloor) {
+	if (Math.floor(ylog - 0.3) < yfloor) {
 		ymag /= 2;
 	}
 
-	if (Math.floor(ylog - 0.5) < yfloor) {
+	if (Math.floor(ylog - 0.6) < yfloor) {
 		ymag /= 2;
 	}
 

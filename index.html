@@ -33,10 +33,16 @@
 			setInterval(update, 16);
 
 			function update() {
-				//xoff += 1.0/60.0;
-				mat4.identity(gp.model);
-				mat4.rotate(gp.model, xoff, [0, 0, 1]);
+				xoff += 1.0/60.0;
+				//mat4.identity(gp.model);
+				//mat4.rotate(gp.model, xoff, [0, 0, 1]);
 				//mat4.translate(gp.model, [0.0, Math.sin(xoff)/2, 0.0]);
+
+				gp.g_left = Math.sin(xoff)*10 - 15
+				gp.g_right = 15 - Math.sin(xoff)*10
+
+				gp.g_down = Math.sin(xoff)*10 - 15
+				gp.g_up = 15 - Math.sin(xoff)*10
 			}
 
 		</script>
