@@ -16,14 +16,14 @@
 
 		<script>
 			var canvas = document.getElementById("test-canvas");
-			var gp = gpInitCanvas(canvas);
-			var size = 2000000;
+			var gp = gpInitCanvas(canvas, [-15, -15, 15, 15]);
+			var size = 10000;
 			var data = new Array(size*4);
 			var x = 0;
 			for(var i = 0; i < size*2;i++) {
-				x = (i-size)/size;
+				x = 10*(i-size)/size;
 				data[i*2 + 0] = x;
-				data[i*2 + 1] = Math.cos(x*10.0)/10.0;
+				data[i*2 + 1] = Math.cos(x);
 			}
 			var bounds = [-1, -1, 1, 1];
 			initData(gp, data, bounds);
@@ -33,9 +33,10 @@
 			setInterval(update, 16);
 
 			function update() {
-				xoff += 1.0/60.0;
+				//xoff += 1.0/60.0;
 				mat4.identity(gp.model);
-				mat4.translate(gp.model, [0.0, Math.sin(xoff)/2, 0.0]);
+				mat4.rotate(gp.model, xoff, [0, 0, 1]);
+				//mat4.translate(gp.model, [0.0, Math.sin(xoff)/2, 0.0]);
 			}
 
 		</script>
