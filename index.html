@@ -23,7 +23,7 @@
 			for(var i = 0; i < size*2;i++) {
 				x = 10*(i-size)/size;
 				data[i*2 + 0] = x;
-				data[i*2 + 1] = Math.cos(x);
+				data[i*2 + 1] = Math.cos(x) + Math.sin(2*x)*2 - x*x/50 + x*x*x/500;
 			}
 			var bounds = [-1, -1, 1, 1];
 			initData(gp, data, bounds);
@@ -34,9 +34,6 @@
 
 			function update() {
 				xoff += 1.0/60.0;
-				//mat4.identity(gp.model);
-				//mat4.rotate(gp.model, xoff, [0, 0, 1]);
-				//mat4.translate(gp.model, [0.0, Math.sin(xoff)/2, 0.0]);
 
 				gp.g_left = Math.sin(xoff/2)*12 - 15
 				gp.g_right = 15 - Math.sin(xoff/2)*12
