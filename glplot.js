@@ -9,7 +9,19 @@ function gpInitCanvas(canvas, bounds) {
 	canvas.onmousemove = gpInternal_mouseMoveCallback;
 	canvas.onwheel = gpInternal_mouseWheelCallback;
 
-	canvas.gpgl = gl;
+	gl.textDiv = document.getElementById("test-div");
+	gl.textPs = new Array(20);
+
+	for(var i = 0; i < 20;i++) {
+		gl.textPs[i] = document.createElement("div");
+		gl.textDiv.appendChild(gl.textPs[i]);
+
+		gl.textPs[i].style.position = "absolute";
+		gl.textPs[i].style.left = "-100px";
+		gl.textPs[i].style.top = "-100px";
+	}
+
+	canvas.gpgl = gl;	
 
 	gl.g_left = bounds[0];
 	gl.g_down = bounds[1];
@@ -196,8 +208,8 @@ function gpInternal_mouseWheelCallback(e) {
 
 	var bounds = e.target.getBoundingClientRect();
 
-	var x = e.x - bounds.left;
-	var y = e.y - bounds.top;
+	var x = e.clientX - bounds.left;
+	var y = e.clientY - bounds.top;
 
 	var x1 = 0;
 	var y1 = 0;
@@ -319,6 +331,7 @@ function gpInternal_getModelviewMatrix(gridModel, x, y, w, h) {
 }
 
 function gpInternal_drawGrid(gl) {
+	var bounds = gl.canvas.getBoundingClientRect();
 	var xratio = gl.viewportWidth / (gl.g_right - gl.g_left);
 
 	var xlen = gl.g_right - gl.g_left;
@@ -337,17 +350,25 @@ function gpInternal_drawGrid(gl) {
 	var xlr = Math.round(gl.g_left / xmag)*xmag;
 	var xrr = Math.round(gl.g_right / xmag)*xmag;
 
+	var index = 0;
+
 	var xNum = (xrr - xlr) / xmag;
 	for (i = 0; i < xNum + 1;i++) {
 		var tx = (xlr - gl.g_left + xmag*i)*xratio;
+		var xrv = xlr + xmag*i;
 
 		if (tx  < 0 || tx > gl.viewportWidth) {
 			continue;
 		}
 
+		gl.textPs[index].style.left = tx+12 + "px";
+		gl.textPs[index].style.top = "10px";
+		gl.textPs[index].innerHTML = "" + xrv;
+
 		gpInternal_getModelviewMatrix(gl.gridModel, tx, 300, 0.5, 600);
 		gl.uniformMatrix4fv(gl.shader.modelLoc, false, gl.gridModel);
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
+		index++;
 	}
 
 	var yratio = gl.viewportHeight / (gl.g_up - gl.g_down);
@@ -372,13 +393,25 @@ function gpInternal_drawGrid(gl) {
 
 	for (i = 0; i < yNum * 2; i++) {
 		var ty = (ylr - gl.g_down + ymag*i)*yratio;
+		var yrv = ylr + ymag*i;
 
 		if (ty < 0 || ty > gl.viewportHeight) {
 			continue;
 		}
+
+		gl.textPs[index].style.left = "12px";
+		gl.textPs[index].style.top = (bounds.bottom - ty-2) + "px";
+		gl.textPs[index].innerHTML = "" + yrv;
+
 		gpInternal_getModelviewMatrix(gl.gridModel, 300, ty, 600, 0.5);
 		gl.uniformMatrix4fv(gl.shader.modelLoc, false, gl.gridModel);
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
+		index++;
+	}
+
+	for(var i = index; i < 20; i++) {
+		gl.textPs[i].style.left = "-100px";
+		gl.textPs[i].style.top = "-100px";
 	}
 }
 
