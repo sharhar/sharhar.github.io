@@ -6,6 +6,10 @@ function gpInitCanvas(canvas, bounds) {
 		return;
 	}
 
+	canvas.onmousemove = gpInternal_mouseMoveCallback;
+
+	canvas.gpgl = gl;
+
 	gl.g_left = bounds[0];
 	gl.g_down = bounds[1];
 	gl.g_right = bounds[2];
@@ -15,6 +19,10 @@ function gpInitCanvas(canvas, bounds) {
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
 	gl.has_data = false;
+
+	gl.preMouseX = 0;
+	gl.preMouseY = 0;
+	gl.preMouseDown = 0;
 
 	var vs_src = `attribute vec2 pos;
 
@@ -132,6 +140,51 @@ function updateData(gl, data, bounds) {
 	}
 
 	gl.rvbo = (gl.rvbo + 1)%2;
+}
+
+function gpInternal_mouseMoveCallback(e) {
+	var gl = e.target.gpgl;
+
+	var posx = e.clientX;
+	var posy = e.clientY;
+
+	var down = e.buttons&1;
+
+	var bounds = e.target.getBoundingClientRect();
+
+	posx -= bounds.left;
+	posy -= bounds.top;
+
+	if (gl.preMouseX != posx || gl.preMouseY != posy || gl.preMouseDown != down) {
+		var dx = posx - gl.preMouseX;
+		var dy = posy - gl.preMouseY;
+
+		gl.preMouseX = posx;
+		gl.preMouseY = posy;
+		gl.preMouseDown = down;
+
+		if ((dx != 0 || dy != 0) && down == 1) {
+			var width = gl.g_right - gl.g_left;
+			var percentX = dx / gl.viewportWidth;
+
+			var moveX = -width * percentX;
+
+			gl.g_left += moveX;
+			gl.g_right += moveX;
+
+			var height = gl.g_up - gl.g_down;
+			var percentY = dy / gl.viewportHeight;
+
+			var moveY = height * percentY;
+
+			gl.g_down += moveY;
+			gl.g_up += moveY;
+		}
+	}
+
+	//if(e.buttons&1 == 1) {
+		
+	//}
 }
 
 function gpInternal_startGameLoop(gl) {
