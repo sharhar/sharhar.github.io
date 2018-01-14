@@ -7,6 +7,7 @@ function gpInitCanvas(canvas, bounds) {
 	}
 
 	canvas.onmousemove = gpInternal_mouseMoveCallback;
+	canvas.onwheel = gpInternal_mouseWheelCallback;
 
 	canvas.gpgl = gl;
 
@@ -19,6 +20,8 @@ function gpInitCanvas(canvas, bounds) {
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
 	gl.has_data = false;
+
+	gl.ZOOM_PERCENT = 0.025
 
 	gl.preMouseX = 0;
 	gl.preMouseY = 0;
@@ -185,6 +188,49 @@ function gpInternal_mouseMoveCallback(e) {
 	//if(e.buttons&1 == 1) {
 		
 	//}
+}
+
+function gpInternal_mouseWheelCallback(e) {
+	var gl = e.target.gpgl;
+	var scroll = -e.deltaY;
+
+	var bounds = e.target.getBoundingClientRect();
+
+	var x = e.x - bounds.left;
+	var y = e.y - bounds.top;
+
+	var x1 = 0;
+	var y1 = 0;
+	var x2 = gl.g_right - gl.g_left;
+	var y2 = gl.g_up - gl.g_down;
+			
+	var w1 = (x / gl.viewportWidth)*x2;
+	var w2 = x2 - w1;
+
+	if (scroll > 0) {
+		x1 = 2 * gl.ZOOM_PERCENT*w1;
+		x2 = x2 - 2 * gl.ZOOM_PERCENT*w2;
+	} else if (scroll < 0){
+		x1 = - 2 * gl.ZOOM_PERCENT*w1;
+		x2 = x2 + 2 * gl.ZOOM_PERCENT*w2;
+	}
+
+	var h1 = ((gl.viewportHeight - y) / gl.viewportHeight)*(y2);
+	var h2 = y2 - ((gl.viewportHeight - y) / gl.viewportHeight)*(y2);
+
+	if (scroll > 0) {
+		y1 = 2 * gl.ZOOM_PERCENT*h1;
+		y2 = y2 - 2 * gl.ZOOM_PERCENT*h2;
+	}
+	else if (scroll < 0) {
+		y1 = -2 * gl.ZOOM_PERCENT*h1;
+		y2 = y2 + 2 * gl.ZOOM_PERCENT*h2;
+	}
+
+	gl.g_right = gl.g_left + x2;
+	gl.g_left = gl.g_left + x1;
+	gl.g_up = gl.g_down + y2;
+	gl.g_down = gl.g_down + y1;
 }
 
 function gpInternal_startGameLoop(gl) {
