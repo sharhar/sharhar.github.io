@@ -1,10 +1,14 @@
 var gctx;
 var WIDTH;
 var HEIGHT;
+var session;
 
 function draw() {
   WIDTH = 640;//document.getElementById('webcam').width;
   HEIGHT = 480;//document.getElementById('webcam').height;
+
+  session = new onnx.InferenceSession({ backendHint: 'webgl' });
+  session.loadModel("./model.onnx");
 
   console.log(document.getElementById('webcam'));
 
@@ -116,9 +120,6 @@ async function runExample() {
   }
 
   // Create an ONNX inference session with default backend.
-  const session = new onnx.InferenceSession({ backendHint: 'webgl' });
-  // Load an ONNX model. This model is Resnet50 that takes a 1*3*224*224 image and classifies it.
-  await session.loadModel("./model.onnx");
 
   var data = getImageData();
   const tensor = new Tensor(data, 'float32', [1, 3, 416, 416]);
