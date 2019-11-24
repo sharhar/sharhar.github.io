@@ -170,7 +170,7 @@ function gpInternal_eqConvert(pre_text) {
 				tempNode.value = t.value;
 
 				var found = false;
-				for (var j = 0; parse_funcs.length;j++) {
+				for (var j = 0; j < parse_funcs.length;j++) {
 					if (parse_funcs[j] == t.value) {
 						found = true;
 						break;
@@ -206,9 +206,10 @@ function gpInternal_eqConvert(pre_text) {
 		}
 	}
 
-	var currentVars = ["pi", "tau", "e", "t", "at", "x", "y"];
+	var currentVars = ["pi", "tau", "e", "t", "x", "y"];
 
-	var funcID = 1;
+	var funcID = new Object();
+	funcID.ID = 1;
 	var resultString = getNodeString(parseResult[0], funcID, currentVars);
 
 	if(resultString.error) {
@@ -435,10 +436,13 @@ function getNodeString(node, funcID, currentVars) {
 	result.funcs = "";
 
 	if (node.type == NODE_TYPE_ZRO) {
-		result.body = "0";
+		result.body = "0.0";
 	}
 	else if (node.type == NODE_TYPE_NUM) {
 		result.body = node.value;
+		if(!result.body.includes(".")) {
+			result.body+=".0";
+		}
 	}
 	else if (node.type == NODE_TYPE_VAR) {
 		result.body = node.value;
@@ -469,6 +473,7 @@ function getNodeString(node, funcID, currentVars) {
 			}
 
 			result.body = "(" + prevString.body + ")+(" + postString.body + ")";
+			result.funcs = prevString.funcs + postString.funcs;
 		}
 		else if (node.value[0] == '-') {
 			var prevString = getNodeString(prev, funcID, currentVars);
@@ -484,6 +489,7 @@ function getNodeString(node, funcID, currentVars) {
 			}
 
 			result.body = "(" + prevString.body + ")-(" + postString.body + ")";
+			result.funcs = prevString.funcs + postString.funcs;
 		}
 		else if (node.value[0] == '*') {
 			var prevString = getNodeString(prev, funcID, currentVars);
@@ -499,6 +505,7 @@ function getNodeString(node, funcID, currentVars) {
 			}
 
 			result.body = "(" + prevString.body + ")*(" + postString.body + ")";
+			result.funcs = prevString.funcs + postString.funcs;
 		}
 		else if (node.value[0] == '/') {
 			var prevString = getNodeString(prev, funcID, currentVars);
@@ -514,6 +521,7 @@ function getNodeString(node, funcID, currentVars) {
 			}
 
 			result.body = "(" + prevString.body + ")/(" + postString.body + ")";
+			result.funcs = prevString.funcs + postString.funcs;
 		}
 		else if (node.value[0] == '=') {
 			var prevString = getNodeString(prev, funcID, currentVars);
@@ -530,6 +538,7 @@ function getNodeString(node, funcID, currentVars) {
 			}
 
 			result.body = "(" + prevString.body + ")-(" + postString.body + ")";
+			result.funcs = prevString.funcs + postString.funcs;
 		}
 		else if (node.value[0] == '^') {
 			var prevString = getNodeString(prev, funcID, currentVars);
@@ -546,7 +555,8 @@ function getNodeString(node, funcID, currentVars) {
 				return result;
 			}
 
-			result.body = "pow_c(" + prevString.body + "," + postString.body + ")";
+			result.body = "pow(" + prevString.body + "," + postString.body + ")";
+			result.funcs = prevString.funcs + postString.funcs;
 		}
 
 	}
@@ -557,43 +567,53 @@ function getNodeString(node, funcID, currentVars) {
 		if (name == null) {
 			childString = getNodeString(node.children[0], funcID, currentVars);
 			result.body = childString.body;
+			result.funcs = childString.funcs;
 		}
 
 		if (name == "ln") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
 			result.body = "log(" + childString.body + ")";
+			result.funcs = childString.funcs;
 		}
 		else if (name == "log") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
 			result.body = "(log(" + childString.body + ")/log(10.0))";
+			result.funcs = childString.funcs;
 		}
 		else if (name == "cot") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
 			result.body = "(1.0/tan(" + childString.body + "))";
+			result.funcs = childString.funcs;
 		}
 		else if (name == "csc") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
 			result.body = "(1.0/sin(" + childString.body + "))";
+			result.funcs = childString.funcs;
 		}
 		else if (name == "sec") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
 			result.body = "(1.0/cos(" + childString.body + "))";
+			result.funcs = childString.funcs;
 		}
 		else if (name == "acot") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
 			result.body = "atan(1.0/(" + childString.body + "))";
+			result.funcs = childString.funcs;
 		}
 		else if (name == "acsc") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
 			result.body = "asin(1.0/(" + childString.body + "))";
+			result.funcs = childString.funcs;
 		}
 		else if (name == "asec") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
 			result.body = "acos(1.0/(" + childString.body + "))";
+			result.funcs = childString.funcs;
 		}
 		else if (name == "pow") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
-			result.body = "pow_c(" + childString.body + ")";
+			result.body = "pow(" + childString.body + ")";
+			result.funcs = childString.funcs;
 		}
 		else if (name == "min") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
@@ -604,6 +624,7 @@ function getNodeString(node, funcID, currentVars) {
 			}
 
 			result.body = "min(" + childString.body + "," + secondString.body + ")";
+			result.funcs = childString.funcs + secondString.funcs;
 		}
 		else if (name == "max") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
@@ -614,85 +635,69 @@ function getNodeString(node, funcID, currentVars) {
 			}
 
 			result.body = "max(" + childString.body + "," + secondString.body + ")";
+			result.funcs = childString.funcs + secondString.funcs;
 		}
-/*
-	
-		else if (strcmp(name, "sigma") == 0) {
-			char* prefixAddFuncName = "custom_math_func_";
-			int numLen = (int)ceil(log10(fmax(*funcID, 1.2f)));
-			char* numStr = malloc_c(g_log, sizeof(char) * (numLen + 1));
-			sprintf(numStr, "%d", *funcID);
+		else if (name == "sigma") {
+			var addFunctionName = "custom_math_func_" + funcID.ID;
 
-			*funcID = *funcID + 1;
+			funcID.ID = funcID.ID + 1;
 
-			int addFunctionNameLen = strlen(numStr) + strlen(prefixAddFuncName);
+			var incName = "";
 
-			char* addFunctionName = malloc_c(g_log, sizeof(char) * (addFunctionNameLen + 1));
-			strcat(addFunctionName, prefixAddFuncName);
-			strcat(addFunctionName, numStr);
-
-			char* incrementName = "";
-			char* incrementStart = "";
-			char* incrementEnd = "";
-
-			char* tempFuncString = "";
-
-			if (node->children[0]->type == NODE_TYPE_VAR) {
-				incrementName = node->children[0]->value;
+			if (node.children[0].type == NODE_TYPE_VAR) {
+				incName = node.children[0].value;
 			} else {
-				*pError = "Increment argument of sigma function was not a variable!";
-				return;
+				result.error = "Increment argument of sigma function was not a variable!";
+				return result;
 			}
 
-			VarNode* tempVarNode = (VarNode*)malloc(sizeof(VarNode));
-			tempVarNode->name = incrementName;
-			tempVarNode->id = currentVars->id + 1;
-			tempVarNode->next = currentVars;
+			var newCurrentVars = currentVars.slice(0);
+			newCurrentVars.push(incName);
 
-			getNodeString(node->children[1], &incrementStart, &tempFuncString, 0, funcID, tempVarNode, pError);
-			getNodeString(node->children[2], &incrementEnd, &tempFuncString, 0, funcID, tempVarNode, pError);
-
-			char* addVarArgs = "";
-			char* addVarCall = "";
-
-			VarNode* cVar = currentVars;
-			for (int i = 0; i < currentVars->id - 6; i++) {
-				addVarArgs = strConcat(addVarArgs, ", float ");
-				addVarArgs = strConcat(addVarArgs, cVar->name);
-
-				addVarCall = strConcat(addVarCall, ", ");
-				addVarCall = strConcat(addVarCall, cVar->name);
-
-				cVar = cVar->next;
+			var arg1 = getNodeString(node.children[1], funcID, newCurrentVars);
+			if(arg1.error) {
+				result.error = arg1.error;
+				return result;
 			}
 
-			char* addFunctionStringPre = "float ";
-			addFunctionStringPre = strConcat(addFunctionStringPre, addFunctionName);
-			addFunctionStringPre = strConcat(addFunctionStringPre, "(float x, float y");
-			addFunctionStringPre = strConcat(addFunctionStringPre, addVarArgs);
-			addFunctionStringPre = strConcat(addFunctionStringPre, ") {\n");
-			addFunctionStringPre = strConcat(addFunctionStringPre, "float result = 0;\n");
-			addFunctionStringPre = strConcat(addFunctionStringPre, "for(float ");
-			addFunctionStringPre = strConcat(addFunctionStringPre, incrementName);
-			addFunctionStringPre = strConcat(addFunctionStringPre, " = ");
-			addFunctionStringPre = strConcat(addFunctionStringPre, incrementStart);
-			addFunctionStringPre = strConcat(addFunctionStringPre, "; ");
-			addFunctionStringPre = strConcat(addFunctionStringPre, incrementName);
-			addFunctionStringPre = strConcat(addFunctionStringPre, " < ");
-			addFunctionStringPre = strConcat(addFunctionStringPre, incrementEnd);
-			addFunctionStringPre = strConcat(addFunctionStringPre, "; ");
-			addFunctionStringPre = strConcat(addFunctionStringPre, incrementName);
-			addFunctionStringPre = strConcat(addFunctionStringPre, "++) {\n");
-			addFunctionStringPre = strConcat(addFunctionStringPre, "result += ");
+			var arg2 = getNodeString(node.children[2], funcID, newCurrentVars);
+			if(arg2.error) {
+				result.error = arg2.error;
+				return result;
+			}
 
-			char* addFunctionStringPost = ";\n}\nreturn result;\n}\n";
+			var addVarArgs = "";
+			var addVarCall = "";
 
-			*pFuncsString = strInsert(*pFuncsString, strConcat(addFunctionStringPre, addFunctionStringPost), 0);
-			getNodeString(node->children[3], pFuncsString, &tempFuncString, strlen(addFunctionStringPre), funcID, tempVarNode, pError);
-			*pFuncsString = strInsert(*pFuncsString, tempFuncString, 0);
+			for (var i = 6; i < currentVars.length; i++) {
+				var cVar = currentVars[i];
 
-			*pString = strInsert(*pString, strConcat(strConcat(addFunctionName, "(x, y"), strConcat(addVarCall, ")")), pos);
+				addVarArgs += ", float ";
+				addVarArgs +=  cVar.name;
+
+				addVarCall += ", ";
+				addVarCall += cVar.name;
+			}
+
+			var formula = getNodeString(node.children[3], funcID, newCurrentVars);
+			if(formula.error) {
+				result.error = formula.error;
+				return result;
+			}
+
+			var addFunctionString = 
+				"float "+ addFunctionName + "(float x, float y" + addVarArgs + `) {
+					float result = 0.0;
+					for(float ` + incName + " = " + arg1.body + "; "+ incName + " <= " + arg2.body + "; " + incName + `+=1.0) {
+						result += ` + formula.body + `;
+					}
+					return result; 
+				}`;
+
+			result.funcs = arg1.funcs + arg2.funcs + formula.funcs + addFunctionString;
+			result.body = addFunctionName + "(x, y" + addVarCall + ")";
 		}
+		/*
 		else if (strcmp(name, "integral") == 0) {
 			char* prefixAddFuncName = "custom_math_func_";
 			int numLen = (int)ceil(log10(fmax(*funcID, 1.2f)));

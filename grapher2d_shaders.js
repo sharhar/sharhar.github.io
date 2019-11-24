@@ -41,6 +41,7 @@ function gpInternal_createQuadShader(gl) {
 }
 
 function gpInternal_createCalcShader(gl, eq, funcs) {
+
 	var vs_src = `
 		attribute vec2 pos;
 

@@ -38,12 +38,7 @@ function gpInternal_mouseMoveCallback(e) {
 			gl.g_up += moveY;
 		}
 	}
-
-	//if(e.buttons&1 == 1) {
-		
-	//}
 }
-
 
 function gpInternal_mouseWheelCallback(e) {
 	var gl = e.target.gpgl;

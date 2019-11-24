@@ -105,13 +105,17 @@ function gpInitCanvas(canvas, bounds) {
 }
 
 function gpGraph(gl, func) {
+	var equationString = gpInternal_eqConvert(func);
+	if(equationString.error) {
+		alert(equationString.error);
+		return;
+	}
+
 	var vsh = gl.shader_calc.vsh;
 	var fsh = gl.shader_calc.fsh;
 	gl.deleteProgram(gl.shader_calc);
 	gl.deleteShader(vsh);
 	gl.deleteShader(fsh);
-
-	var equationString = gpInternal_eqConvert(func);
 
     gpInternal_createCalcShader(gl, equationString.body, equationString.funcs);
 }
