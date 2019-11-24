@@ -17,11 +17,12 @@ function gpInternal_createGridShader(gl) {
 		attribute vec2 pos;
 		attribute vec2 texcoord;
 
-		uniform mat4 model;
-  		uniform mat4 proj;
+        uniform vec2 screen;
+        uniform vec4 trans;
 		
 		void main(void) {
-			gl_Position = proj * model * vec4(pos.x, pos.y, 0.0, 1.0);
+			gl_Position = vec4(2.0*(pos.x*trans.z + trans.x)/screen.x - 1.0, 
+                               2.0*(pos.y*trans.w + trans.y)/screen.y - 1.0, 0.0, 1.0);
 		}`;
 
 	var fs_src = `
@@ -48,19 +49,9 @@ function gpInternal_createGridShader(gl) {
 
     gl.useProgram(gl.shader_grid);
 
-    gl.shader_grid.modelLoc = gl.getUniformLocation(gl.shader_grid, "model");
-    gl.shader_grid.projLoc = gl.getUniformLocation(gl.shader_grid, "proj");
+    gl.shader_grid.screenLoc = gl.getUniformLocation(gl.shader_grid, "screen");
+    gl.shader_grid.transLoc = gl.getUniformLocation(gl.shader_grid, "trans");
     gl.shader_grid.colorLoc = gl.getUniformLocation(gl.shader_grid, "color");
-
-    gl.model = mat4.create();
-    gl.proj = mat4.create();
-    gl.gridModel = new Array(16);
-    gl.gridProj = new Array(16);
-
-    mat4.identity(gl.model);
-    mat4.identity(gl.proj);
-
-    gpInternal_getOrthoMatrix(gl.gridProj, 0, canvas.width, 0, canvas.height, -1, 1);
 
     gl.shader_grid.vpa_pos = gl.getAttribLocation(gl.shader_grid, "pos");
 }
@@ -100,8 +91,8 @@ function gpInternal_drawGrid(gl) {
         gl.textPs[index].style.top = "10px";
         gl.textPs[index].innerHTML = "" + xrv;
 
-        gpInternal_getModelviewMatrix(gl.gridModel, tx, 300, 0.5, 600);
-        gl.uniformMatrix4fv(gl.shader_grid.modelLoc, false, gl.gridModel);
+        gl.uniform4f(gl.shader_grid.transLoc, tx, 300, 0.5, 600);
+
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         index++;
     }
@@ -138,8 +129,8 @@ function gpInternal_drawGrid(gl) {
         gl.textPs[index].style.top = (bounds.bottom - ty-2) + "px";
         gl.textPs[index].innerHTML = "" + yrv;
 
-        gpInternal_getModelviewMatrix(gl.gridModel, 300, ty, 600, 0.5);
-        gl.uniformMatrix4fv(gl.shader_grid.modelLoc, false, gl.gridModel);
+        gl.uniform4f(gl.shader_grid.transLoc, 300, ty, 600, 0.5);
+
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         index++;
     }
@@ -157,8 +148,8 @@ function gpInternal_drawAxes(gl) {
     var xoff = (l / (r + l)) * gl.viewportWidth;
 
     if (gl.g_left < 0 && gl.g_right > 0) {
-        gpInternal_getModelviewMatrix(gl.gridModel, xoff, 300, 1, 600);
-        gl.uniformMatrix4fv(gl.shader_grid.modelLoc, false, gl.gridModel);
+        gl.uniform4f(gl.shader_grid.transLoc, xoff, 300, 1, 600);
+
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
     
@@ -168,8 +159,8 @@ function gpInternal_drawAxes(gl) {
     var yoff = (d / (u + d))* gl.viewportHeight;
 
     if (gl.g_up > 0 && gl.g_down < 0) {
-        gpInternal_getModelviewMatrix(gl.gridModel, 300, yoff, 600, 1);
-        gl.uniformMatrix4fv(gl.shader_grid.modelLoc, false, gl.gridModel);
+        gl.uniform4f(gl.shader_grid.transLoc, 300, yoff, 600, 1);
+
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 }

@@ -132,7 +132,7 @@ function gpInternal_startGameLoop(gl) {
 		
 		gl.vertexAttribPointer(gl.shader_grid.vpa, gl.vbo_quad.itemSize, gl.FLOAT, false, 0, 0);
 		
-		gl.uniformMatrix4fv(gl.shader_grid.projLoc, false, gl.gridProj);
+		gl.uniform2f(gl.shader_grid.screenLoc, 600, 600);
 		gl.uniform3f(gl.shader_grid.colorLoc, 0.45, 0.45, 0.45);
 		gpInternal_drawGrid(gl);
 		gl.uniform3f(gl.shader_grid.colorLoc, 0, 0, 0);
