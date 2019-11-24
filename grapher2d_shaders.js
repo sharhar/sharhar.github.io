@@ -68,32 +68,24 @@ function gpInternal_createCalcShader(gl, eq, funcs) {
 		
 		varying vec2 coord;
 		
-		float powi_c(float b, int p) {
-			//if(p%2 == 0) {
-			//	return pow(abs(b), p);
-			//}
-			return sign(b)*pow(abs(b), float(p));
+		float powi_c(float b, float p) {
+			if(mod(p,2.0) == 0.0) {
+				return pow(abs(b), p);
+			}
+			return sign(b)*pow(abs(b), p);
 		}
-
-		//float fact(float num) {
-		//	float result = 1.0;
-		//	for(float i = 2.0; i <= num; i++) {
-		//		result *= i;
-		//	}
-		//	return result;
-		//}
 
 		float pow_c(float b, float p) {
 			int pi = int(p);
 			if(p < 0.0) {
 				if(float(pi) == p) {
-					return 1.0/(powi_c(b, int(abs(float(pi)))));
+					return 1.0/(powi_c(b, abs(float(pi))));
 				} else {
 					return 1.0/(pow(b, abs(p)));
 				}
 			}
 			if(float(pi) == p) {
-				return powi_c(b, pi);
+				return powi_c(b, float(pi));
 			} else {
 				return pow(b, p);
 			}

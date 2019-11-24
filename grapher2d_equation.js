@@ -121,7 +121,7 @@ function gpInternal_eqConvert(pre_text) {
 	var unsortedNodes = [];
 	for (var i = 0; i < stack.length; i++) {
 		var t = stack[i];
-		
+
 		if (t.type == TK_TYPE_NUM) {
 			var tempNode = new Object();
 			tempNode.type = NODE_TYPE_NUM;
@@ -555,7 +555,7 @@ function getNodeString(node, funcID, currentVars) {
 				return result;
 			}
 
-			result.body = "pow(" + prevString.body + "," + postString.body + ")";
+			result.body = "pow_c(" + prevString.body + "," + postString.body + ")";
 			result.funcs = prevString.funcs + postString.funcs;
 		}
 
@@ -612,7 +612,7 @@ function getNodeString(node, funcID, currentVars) {
 		}
 		else if (name == "pow") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
-			result.body = "pow(" + childString.body + ")";
+			result.body = "pow_c(" + childString.body + ")";
 			result.funcs = childString.funcs;
 		}
 		else if (name == "min") {
