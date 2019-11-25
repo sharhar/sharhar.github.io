@@ -57,6 +57,32 @@ function gpInternal_createGridShader(gl) {
 }
 
 function gpInternal_drawGrid(gl) {
+    var l = Math.abs(gl.g_left);
+    var r = Math.abs(gl.g_right);
+
+    var xoff = (l / (r + l)) * gl.viewportWidth;
+
+    var textXPos = xoff;
+
+    if(gl.g_right < 0 && gl.g_left < 0) {
+        textXPos = gl.viewportWidth+3;
+    } else if (gl.g_right > 0 && gl.g_left > 0) {
+        textXPos = 0;
+    }
+
+    var d = Math.abs(gl.g_down);
+    var u = Math.abs(gl.g_up);
+
+    var yoff = (d / (u + d))* gl.viewportHeight;
+
+    var textYPos = gl.viewportHeight-yoff;
+
+    if(gl.g_up < 0 && gl.g_down < 0) {
+        textYPos = 0;
+    } else if (gl.g_up > 0 && gl.g_down > 0) {
+        textYPos = gl.viewportHeight;
+    }
+
     var bounds = gl.canvas.getBoundingClientRect();
     var xratio = gl.viewportWidth / (gl.g_right - gl.g_left);
 
@@ -87,8 +113,12 @@ function gpInternal_drawGrid(gl) {
             continue;
         }
 
+        if (textYPos > gl.viewportHeight-14) {
+            textYPos = gl.viewportHeight-14;
+        }
+
         gl.textPs[index].style.left = tx+12 + "px";
-        gl.textPs[index].style.top = "10px";
+        gl.textPs[index].style.top = textYPos+10 + "px";
         gl.textPs[index].innerHTML = "" + xrv;
 
         gl.uniform4f(gl.shader_grid.transLoc, tx, 300, 0.5, 600);
@@ -125,8 +155,8 @@ function gpInternal_drawGrid(gl) {
             continue;
         }
 
-        gl.textPs[index].style.left = "12px";
-        gl.textPs[index].style.top = (bounds.bottom - ty-2) + "px";
+        gl.textPs[index].style.left = textXPos+12 + "px";
+        gl.textPs[index].style.top = (bounds.bottom - ty-4) + "px";
         gl.textPs[index].innerHTML = "" + yrv;
 
         gl.uniform4f(gl.shader_grid.transLoc, 300, ty, 600, 0.5);
@@ -139,24 +169,14 @@ function gpInternal_drawGrid(gl) {
         gl.textPs[i].style.left = "-100px";
         gl.textPs[i].style.top = "-100px";
     }
-}
 
-function gpInternal_drawAxes(gl) {
-    var l = Math.abs(gl.g_left);
-    var r = Math.abs(gl.g_right);
-
-    var xoff = (l / (r + l)) * gl.viewportWidth;
+    gl.uniform3f(gl.shader_grid.colorLoc, 0, 0, 0);
 
     if (gl.g_left < 0 && gl.g_right > 0) {
         gl.uniform4f(gl.shader_grid.transLoc, xoff, 300, 1, 600);
 
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
-    
-    var d = Math.abs(gl.g_down);
-    var u = Math.abs(gl.g_up);
-
-    var yoff = (d / (u + d))* gl.viewportHeight;
 
     if (gl.g_up > 0 && gl.g_down < 0) {
         gl.uniform4f(gl.shader_grid.transLoc, 300, yoff, 600, 1);
