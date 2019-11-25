@@ -67,6 +67,8 @@ function gpInternal_createCalcShader(gl, eq, funcs) {
 		const float tau = 3.141592653589793 * 2.0;
 		
 		varying vec2 coord;
+
+		float render = 1.0;
 		
 		float powi_c(float b, float p) {
 			if(mod(p,2.0) == 0.0) {
@@ -112,6 +114,31 @@ function gpInternal_createCalcShader(gl, eq, funcs) {
 			return (dx_/2.0)*(result0_ + result1_)/x;
 		}
 
+		float asin_c(float x) {
+			if(abs(x) > 1.0) {
+				render = 0.0;
+				return asin(sign(x));
+			}
+			return asin(x);
+		}
+
+		float acos_c(float x) {
+			if(abs(x) > 1.0) {
+				render = 0.0;
+				return acos(sign(x));
+			}
+			return acos(x);
+		}
+
+		float acot_c(float x) {
+			if(x == 0.0) {
+				render = 0.0;
+				return 1.0;
+			}
+
+			return atan(1.0/x);
+		}
+
 		` + funcs +  `
 
 		void main(void) {
@@ -120,9 +147,9 @@ function gpInternal_createCalcShader(gl, eq, funcs) {
 			float result = ` + eq + `;
 			float total = result;
 			y = 0.0;
-			result = ` + eq + `;
+			//result = ` + eq + `;
 			float total0 = result;
-			gl_FragColor = vec4(total, total0, 0.0, 1.0);
+			gl_FragColor = vec4(total, total0, render, render);
 		}
 	`;
 
@@ -172,12 +199,16 @@ function gpInternal_createEdgeShader(gl, width, height) {
 
 		bool isColored(vec2 coord) {
 			vec4 c = texture2D(data, coord);
+			if(c.w == 0.0) {
+				return false;
+			}
+
 			if(c.x == 0.0) {
 				return true;
 			}
 
-			vec4 u = texture2D(data, vec2(coord.x, coord.y - pxw));
-			vec4 d = texture2D(data, vec2(coord.x, coord.y + pxw));
+			vec4 u = texture2D(data, vec2(coord.x, coord.y - pxw)); if(u.w == 0.0) {return false;}
+			vec4 d = texture2D(data, vec2(coord.x, coord.y + pxw)); if(d.w == 0.0) {return false;}
 			vec4 u2 = texture2D(data, vec2(coord.x, coord.y - pxw*2.0));
 
 			if(coord.y + pxw*2.0 <= 1.0 && coord.y - pxw >= 0.0) {
@@ -222,6 +253,10 @@ function gpInternal_createEdgeShader(gl, width, height) {
 			vec4 l = texture2D(data, vec2(coord.x - pxw, coord.y));
 			vec4 r2 = texture2D(data, vec2(coord.x + pxw*2.0, coord.y));
 
+			if(r.w == 0.0 && r2.w == 1.0) {
+				return false;
+			}
+
 			if(coord.x + pxw*2.0 <= 1.0 && coord.x - pxw >= 0.0) {
 				float m1 = (c.x - l.x);
 				float m2 = (r2.x - r.x);
@@ -241,6 +276,10 @@ function gpInternal_createEdgeShader(gl, width, height) {
 			}
 
 			vec4 l2 = texture2D(data, vec2(coord.x - pxw*2.0, coord.y));
+
+			if(l.w == 0.0 && l2.w == 1.0) {
+				return false;
+			}
 			
 			if(coord.x + pxw*2.0 <= 1.0 && coord.x - pxw >= 0.0) {
 				float m1 = (l.x - l2.x);

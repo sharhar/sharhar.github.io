@@ -48,7 +48,7 @@ function gpInitCanvas(canvas, bounds) {
 
     gl.dfbo_tex = gl.createTexture();
   	gl.bindTexture(gl.TEXTURE_2D, gl.dfbo_tex);
-  	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG32F, 600, 600, 0, gl.RG, gl.FLOAT, null);
+  	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, 600, 600, 0, gl.RGBA, gl.FLOAT, null);
   	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -156,6 +156,7 @@ function gpInternal_startGameLoop(gl) {
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
+///*
 		gl.bindFramebuffer(gl.FRAMEBUFFER, gl.efbo);
 
 		gl.enableVertexAttribArray(gl.shader_edge.vpa);
@@ -184,6 +185,7 @@ function gpInternal_startGameLoop(gl) {
 		gl.bindTexture(gl.TEXTURE_2D, gl.efbo_tex);
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
+		//*/
 	}
 	
 	render_rec();

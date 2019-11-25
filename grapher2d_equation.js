@@ -309,7 +309,7 @@ function parseExpression(nodes) {
 function parseSimpleExpression(nodes) {
 	if (nodes.length == 0) {
 		var result = [];
-		result.error = "";
+		result.error = "_";
 		return result;
 	}
 
@@ -347,7 +347,7 @@ function parseSimpleExpression(nodes) {
 						prev.type = NODE_TYPE_ZRO;
 					}
 					else {
-						if (prev.error != "") {
+						if (prev.error != "_") {
 							return prev;
 						}
 
@@ -379,7 +379,7 @@ function parseSimpleExpression(nodes) {
 				var next = parseSimpleExpression(temp2);
 
 				if (next.error) {
-					if (next.error != "") {
+					if (next.error != "_") {
 						return next;
 					}
 
@@ -569,8 +569,7 @@ function getNodeString(node, funcID, currentVars) {
 			result.body = childString.body;
 			result.funcs = childString.funcs;
 		}
-
-		if (name == "ln") {
+		else if (name == "ln") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
 			result.body = "log(" + childString.body + ")";
 			result.funcs = childString.funcs;
@@ -578,6 +577,16 @@ function getNodeString(node, funcID, currentVars) {
 		else if (name == "log") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
 			result.body = "(log(" + childString.body + ")/log(10.0))";
+			result.funcs = childString.funcs;
+		}
+		else if (name == "asin") {
+			childString = getNodeString(node.children[0], funcID, currentVars);
+			result.body = "asin_c(" + childString.body + ")";
+			result.funcs = childString.funcs;
+		}
+		else if (name == "acos") {
+			childString = getNodeString(node.children[0], funcID, currentVars);
+			result.body = "acos_c(" + childString.body + ")";
 			result.funcs = childString.funcs;
 		}
 		else if (name == "cot") {
@@ -597,17 +606,17 @@ function getNodeString(node, funcID, currentVars) {
 		}
 		else if (name == "acot") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
-			result.body = "atan(1.0/(" + childString.body + "))";
+			result.body = "acot_c(" + childString.body + ")";
 			result.funcs = childString.funcs;
 		}
 		else if (name == "acsc") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
-			result.body = "asin(1.0/(" + childString.body + "))";
+			result.body = "asin_c(1.0/(" + childString.body + "))";
 			result.funcs = childString.funcs;
 		}
 		else if (name == "asec") {
 			childString = getNodeString(node.children[0], funcID, currentVars);
-			result.body = "acos(1.0/(" + childString.body + "))";
+			result.body = "acos_c(1.0/(" + childString.body + "))";
 			result.funcs = childString.funcs;
 		}
 		else if (name == "pow") {
