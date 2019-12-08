@@ -1,0 +1,3 @@
+[submodule "grapher2d.js"]
+	path = grapher2d.js
+	url = https://github.com/sharhar/grapher2d.js
