@@ -22,16 +22,8 @@ var parse_funcs = [
 "abs", "mod", "pow", "sqrt", "sign", "floor", 
 "sigma", "fact", "PI", "integral", "gamma"];
 
-function gpInternal_eqConvert(pre_text) {
+function gpInternal_eqConvert(text) {
 	var result = new Object();
-
-	var preTextLength = pre_text.length;
-
-	var text = pre_text;
-
-	if(!pre_text.includes("=")) {
-		text = pre_text + "=y";
-	}
 
 	var tempStr = "";
 	var tempType = 0;
