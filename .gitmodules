@@ -1,3 +1,6 @@
 [submodule "grapher2d.js"]
 	path = grapher2d.js
 	url = https://github.com/sharhar/grapher2d.js
+[submodule "game2d.js"]
+	path = game2d.js
+	url = https://github.com/sharhar/game2d.js.git
